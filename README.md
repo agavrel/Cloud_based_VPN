@@ -94,6 +94,8 @@ Finally click in the top right corner of the app (the 3 dash) and select connect
 ---
 Any problem ? Please email me.
 
+Another VPN: https://github.com/trailofbits/algo
+
 Credit: https://www.youtube.com/watch?v=QoQ-GS57sQE
 
 Credit2: Nyr's script
