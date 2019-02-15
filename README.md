@@ -17,9 +17,11 @@ Username: root
 Password: {26 hexadecimal digits}
 ```
 
-### Putty SSH
+### Putty SSH (optional)
 
-Then you need to download putty SSH.   
+Optional because you can access terminal using "access console" if you select your droplet on the digital ocean site. It will allow you to copy/paste passwords and script which is way more convenient.
+
+If you want to do it the other way you need to download putty SSH.   
 
 ```c++
 sudo apt update
@@ -38,10 +40,20 @@ Once you gained access proceed to next step:
 ### Run script from [Nyr's github](https://github.com/Nyr/openvpn-install)
 
 ```c++
-wget https://raw.githubusercontent.com/Nyr/openvpn-install/master/openvpn-install.sh
-chmod 777 openvpn-install.sh
+mkdir openvpn &&
+cd openvpn &&
+wget https://raw.githubusercontent.com/Nyr/openvpn-install/master/openvpn-install.sh &&
+chmod 777 openvpn-install.sh &&
 bash openvpn-install.sh
 ```
+
+The script will ask you a few questions, choose the following:
+
+* IP adress : XXX.XXX.XXX.XXX (let the default one, which is the IP of the Cloud server)
+* Which protocol do you want to use : UDP
+* Which DNS do you want to use: 1.1.1.1 (cloudflare, [the fastest](https://medium.com/@nykolas.z/dns-resolvers-performance-compared-cloudflare-x-google-x-quad9-x-opendns-149e803734e5))
+* Client: vpnconfig
+
 
 ### Filezilla Client
 
