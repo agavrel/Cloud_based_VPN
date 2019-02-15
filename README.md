@@ -8,7 +8,11 @@ https://m.do.co/c/794f5962b4a6
 
 You will need to enter your credit card details but will be provided with $100 for 60 days.
 
-You need to click on "Droplet" and select New, then create the cheapest one. Select a server close from your home country and then you will be emailed with login and passwords of your VM cloud-based.
+* You need to click on "Droplet" and select New,
+* Then switch to the cheapest (the one at 5mo).
+* Select IPv6 in options.
+* Select a server close from your home country
+* then you will be emailed with login and passwords of your VM cloud-based.
 
 ```c++
 Droplet Name: {what you entered}
@@ -96,9 +100,10 @@ sudo apt-get install pritunl-client-electron
 Then open it and select "Import Profile", open the file with ".opvn" extension that you got using Filezilla.
 
 
-Check current IP of your computer before and after connecting to the Cloud based VPM with :
+Check current IP of your computer before and after connecting to the Cloud based VPM with (first for IPv4 and second for IPv6) :
 ```c++
-curl https://ipinfo.io/ip
+curl https://ipinfo.io/ip &&
+curl https://ifconfig.co
 ```
 
 Finally click in the top right corner of the app (the 3 dash) and select connect. You are now using the VPN !
