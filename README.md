@@ -1,6 +1,47 @@
 # Cloud_based_VPN
 How to setup a VPN on the cloud
 
+### Check udp ports
+```c++
+nmap -sUV -T4 -F --version-intensity 0 scanme.nmap.org
+```
+best should be 123
+https://hackertarget.com/nmap-cheatsheet-a-quick-reference-guide/
+
+```c++
+cat /etc/openvpn/server.conf
+vi /etc/openvpn/server.conf
+systemctl restart openvpn@server.service
+```
+
+### Download file from remote server
+
+```c++
+scp root@167.99.66.250:wawa.ovpn /home/st4ck
+```
+
+### SSH to the Cloud Server
+
+```c++
+ssh -v root@167.99.66.250
+```
+
+### Install Google Chrome on Cloud through terminal
+```c++
+wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+echo 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' | sudo tee /etc/apt/sources.list.d/google-chrome.list
+sudo apt-get update
+sudo apt-get install google-chrome-stable
+
+cd /tmp
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+sudo dpkg -i google-chrome-stable_current_amd64.deb
+sudo apt-get -f install
+```
+
+### Set up the SUID sandbox
+
+
 ### Digital Ocean Subscription
 
 First you need to create an account on Digital Ocean or any other major Cloud services:
@@ -41,8 +82,111 @@ Port: 22
 
 Once you gained access proceed to next step:
 
-### Run script from [Nyr's github](https://github.com/Nyr/openvpn-install)
+### Alternative to OpenVPN Let's install shadowsocks [Credit](https://www.vpndada.com/how-to-setup-a-shadowsocks-server-on-digitalocean/)
+```c++
+apt-get update &&
+apt-get install python-pip &&
+pip install shadowsocks
+```
 
+```c++
+apt-get install python-m2crypto &&
+apt-get install build-essential &&
+wget https://github.com/jedisct1/libsodium/releases/download/1.0.10/libsodium-1.0.10.tar.gz &&
+tar xf libsodium-1.0.10.tar.gz && cd libsodium-1.0.10 &&
+./configure && make && make install &&
+ldconfig
+```
+
+Now the config file:
+```c++
+vi /etc/shadowsocks.json
+```
+
+```json
+{
+    "server":"138.68.30.42",
+    "server_port":8000,
+    "local_port":1080,
+    "password":"XXX",
+    "timeout":600,
+    "method":"chacha20"
+}
+```
+
+For multiple users:
+```json
+{
+    "server":"138.68.30.42",
+    "port_password": {
+        "443": "gof4ster",
+        "8000": "gof4ster",
+        "8383": "gof4ster",
+        "8384": "gof4ster"
+    },
+    "local_port":1080,
+    "timeout":600,
+    "method":"chacha20"
+}
+```
+
+Start server with:
+```c++
+ssserver -c /etc/shadowsocks.json -d start
+```
+
+Check:
+```c++
+less /var/log/shadowsocks.log
+```
+
+In the future, if you want to stop the Shadowsocks server, use this command: “ssserver -c /etc/shadowsocks.json -d stop”. If you want to restart the Shadowsocks server, use this command: “ssserver -c /etc/shadowsocks.json -d restart”.
+
+Make sure that everytime the server reboots it starts the shadowsocks server automatically:
+```c++
+vi /etc/rc.local
+```
+
+In the file opened, add the following line to the bottom, before “exit 0”:
+```c++
+/usr/bin/python /usr/local/bin/ssserver -c /etc/shadowsocks.json -d start
+```
+
+Download the client:
+https://github.com/shadowsocks/shadowsocks-qt5/releases
+
+To install the client required packages on your personal laptop:
+```c++
+sudo apt install cmake &&
+sudo apt install qtbase5 &&
+sudo apt install libqrencode &&
+sudo apt install libqtshadowsocks &&
+sudo apt install libzbar0 &&
+sudo apt install libappindicator1 &&
+sudo apt install libsuitesparse-dev &&
+
+```
+
+Install Qt
+```c++
+sudo apt install qt5-default
+```
+
+Install Botan
+```c++
+sudo apt-get update -y
+sudo apt-get install -y botan
+```
+
+and the client itself:
+```c++
+mkdir build && cd build &&
+cmake .. -DCMAKE_INSTALL_PREFIX=/usr &&
+make -j4 &&
+sudo make install
+```
+
+### Install OpenVPN
 ```c++
 mkdir openvpn &&
 cd openvpn &&
@@ -108,6 +252,12 @@ curl https://ifconfig.co
 
 Finally click in the top right corner of the app (the 3 dash) and select connect. You are now using the VPN !
 
+### Get Netflix to work
+```c++
+wget -qO- https://get.docker.com/ | sh
+&& chmod 777 sh
+&& ./sh
+```
 ---
 Any problem ? Please email me.
 
