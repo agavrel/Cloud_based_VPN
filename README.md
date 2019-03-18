@@ -4,8 +4,7 @@ How to setup a VPN on the cloud
 
 ### Digital Ocean Subscription
 
-First you need to create an account on Digital Ocean or any other major Cloud services:
-https://m.do.co/c/794f5962b4a6
+First you need to create an account on [Digital Ocean](https://m.do.co/c/794f5962b4a6) (referral link) :
 
 You will need to enter your credit card details but will be provided with $100 for 60 days.
 
@@ -22,6 +21,8 @@ Username: root
 Password: {26 hexadecimal digits}
 ```
 
+> I am not advocating especially in favor of Digital Ocean but they offer a very good service pricewise. Any other Cloud services like AWS or Google Cloud or whatever would do it is up to your choice
+
 ### SSH to the Cloud Server
 
 ```c++
@@ -34,7 +35,9 @@ ssh -v root@167.99.66.250
 
 ### Install ShadowSocks; [Credit](https://mighil.com/how-to-setup-shadowsocks-server-on-digitalocean-vps/)
 
-Once you have logged in to the server/droplet, run the following command to update the packages:
+> Why using ShadowSocks instead of OpenVPN (My original choice) ? Well in fact you can even access Twitch or Netflix and break through the Great Firewall while being in China !  
+
+Once you have logged in to the server/droplet (see SSH to the Cloud Server), run the following command to update the packages:
 ```c++
 apt-get update
 ```
