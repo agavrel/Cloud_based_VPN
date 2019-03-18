@@ -1,46 +1,6 @@
 # Cloud_based_VPN
 How to setup a VPN on the cloud
 
-### Check udp ports
-```c++
-nmap -sUV -T4 -F --version-intensity 0 scanme.nmap.org
-```
-best should be 123
-https://hackertarget.com/nmap-cheatsheet-a-quick-reference-guide/
-
-```c++
-cat /etc/openvpn/server.conf
-vi /etc/openvpn/server.conf
-systemctl restart openvpn@server.service
-```
-
-### Download file from remote server
-
-```c++
-scp root@167.99.66.250:wawa.ovpn /home/st4ck
-```
-
-### SSH to the Cloud Server
-
-```c++
-ssh -v root@167.99.66.250
-```
-
-### Install Google Chrome on Cloud through terminal
-```c++
-wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-echo 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' | sudo tee /etc/apt/sources.list.d/google-chrome.list
-sudo apt-get update
-sudo apt-get install google-chrome-stable
-
-cd /tmp
-wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-sudo dpkg -i google-chrome-stable_current_amd64.deb
-sudo apt-get -f install
-```
-
-### Set up the SUID sandbox
-
 
 ### Digital Ocean Subscription
 
@@ -50,7 +10,7 @@ https://m.do.co/c/794f5962b4a6
 You will need to enter your credit card details but will be provided with $100 for 60 days.
 
 * You need to click on "Droplet" and select New,
-* Then switch to the cheapest (the one at 5mo).
+* Then switch to the cheapest (the one at $5 per month, by default they select the $40 one).
 * Select IPv6 in options.
 * Select a server close from your home country
 * then you will be emailed with login and passwords of your VM cloud-based.
@@ -62,55 +22,76 @@ Username: root
 Password: {26 hexadecimal digits}
 ```
 
-### Putty SSH (optional)
-
-Optional because you can access terminal using "access console" if you select your droplet on the digital ocean site. It will allow you to copy/paste passwords and script which is way more convenient.
-
-If you want to do it the other way you need to download putty SSH.   
+### SSH to the Cloud Server
 
 ```c++
-sudo apt update
-sudo apt install putty
+ssh -v {root id}@{IPv4 of your Droplet}
+```
+like for example:
+```c++
+ssh -v root@167.99.66.250
 ```
 
-Open it and use :
-Hostname: XXX.XXX.XXX.XXX (IP address of your droplet)
-Port: 22
+### Install ShadowSocks; [Credit](https://mighil.com/how-to-setup-shadowsocks-server-on-digitalocean-vps/)
 
-1/ You will access the Cloud-based VPN. Enter username "root".  
-2/ You need to type the password provided in the email twice and only after you will be allowed to change it to a custom one, don't worry if nothing appear when you type the password, it is a security measure.
-
-Once you gained access proceed to next step:
-
-### Alternative to OpenVPN Let's install shadowsocks [Credit](https://www.vpndada.com/how-to-setup-a-shadowsocks-server-on-digitalocean/)
+Once you have logged in to the server/droplet, run the following command to update the packages:
 ```c++
-apt-get update &&
-apt-get install python-pip &&
-pip install shadowsocks
+apt-get update
 ```
 
+Now, run the following commands to install Python
 ```c++
-apt-get install python-m2crypto &&
-apt-get install build-essential &&
-wget https://github.com/jedisct1/libsodium/releases/download/1.0.10/libsodium-1.0.10.tar.gz &&
-tar xf libsodium-1.0.10.tar.gz && cd libsodium-1.0.10 &&
-./configure && make && make install &&
+apt-get install python-pip
+```
+
+Then Shadowsocks :
+```c++
+pip install -U git+https://github.com/shadowsocks/shadowsocks.git@master
+```
+
+Check this link if any [issue](https://github.com/shadowsocks/shadowsocks/issues/646)  
+
+Now install M2Crypto, which is the most complete Python wrapper for OpenSSL featuring RSA, DSA, DH, EC, HMACs, message digests, symmetric ciphers (including AES). Run the following commands to install M2Crypto:
+
+```c++
+apt-get install python-m2crypto
+apt-get install build-essential
+```
+
+Since salsa20 and chacha20 are fast stream cyphers. Optimized salsa20/chacha20 implementation on x86_64 is even 2x faster than rc4 (but slightly slower on ARM). You must install libsodium to use them:
+
+```c++
+wget https://github.com/jedisct1/libsodium/releases/download/1.0.10/libsodium-1.0.10.tar.gz
+tar xf libsodium-1.0.10.tar.gz && cd libsodium-1.0.10
+./configure && make && make install
 ldconfig
 ```
 
-Now the config file:
-```c++
-vi /etc/shadowsocks.json
-```
+After finishing up the steps above, we must create a .json file (config file) for Shadowsocks.
 
+```c++
+sudo vi /etc/shadowsocks.json
+```
+containing the following:
 ```json
 {
-    "server":"138.68.30.42",
-    "server_port":8000,
-    "local_port":1080,
-    "password":"XXX",
-    "timeout":600,
-    "method":"chacha20"
+"server":"{server IPv4 like XXX.XXX.XXX.XXX}",
+"server_port":8000,
+"local_port":1080,
+"password":"{password of your choice}",
+"timeout":600,
+"method":"{desired encryption method}"
+}
+```
+You can choose any encryption method from [here](http://www.shadowsocks.org/en/spec/Stream-Ciphers.html) like for example:
+```json
+{
+"server":"128.199.180.160",
+"server_port":8000,
+"local_port":1080,
+"password":"gof4st",
+"timeout":600,
+"method":"aes-128-cfb"
 }
 ```
 
@@ -130,27 +111,47 @@ For multiple users:
 }
 ```
 
-Start server with:
+You can choose any encryption method from [here](http://www.shadowsocks.org/en/spec/Stream-Ciphers.html).
+
+> I prefer to use aes-128-cfb to aes-256-cfb since 128 is good enough to be secured so as long as security is not critical you can select 128.
+
+you can then start your shadowsocks server with:
 ```c++
 ssserver -c /etc/shadowsocks.json -d start
 ```
 
-Check:
+You can check the Shadowsocks log file, which is located in /var/log/shadowsocks.log to make sure everything is okay.  
 ```c++
 less /var/log/shadowsocks.log
 ```
 
-In the future, if you want to stop the Shadowsocks server, use this command: “ssserver -c /etc/shadowsocks.json -d stop”. If you want to restart the Shadowsocks server, use this command: “ssserver -c /etc/shadowsocks.json -d restart”.
+Now that you are almost done, we need to make sure Shadowsocks server will be started automatically during system reboots. Edit the file named /etc/rc.local to do so.  
 
-Make sure that everytime the server reboots it starts the shadowsocks server automatically:
+Open up /etc/rc.local
 ```c++
 vi /etc/rc.local
 ```
 
-In the file opened, add the following line to the bottom, before “exit 0”:
+and add the following content before the exit 0 line to make sure that everytime the server reboots it starts the shadowsocks server automatically:
 ```c++
 /usr/bin/python /usr/local/bin/ssserver -c /etc/shadowsocks.json -d start
 ```
+
+> Note: In the future, use this command: “ssserver -c /etc/shadowsocks.json -d stop” to stop the Shadowsocks server. and “ssserver -c /etc/shadowsocks.json -d restart” to restart.
+
+you can retrieve your configuration file using scp command with
+```c++
+scp {root username}@{IP}:/etc/shadowsocks.json /home/{your local machine username}
+```
+
+
+like for example:
+```c++
+scp root@159.89.204.125:/etc/shadowsocks.json /home/agavrel
+```
+
+you will be prompted to enter your password
+
 
 Download the client:
 https://github.com/shadowsocks/shadowsocks-qt5/releases
@@ -186,7 +187,15 @@ make -j4 &&
 sudo make install
 ```
 
+---
+
 ### Install OpenVPN
+
+conf is located in
+```c++
+vi /etc/openvpn/server.conf
+```
+
 ```c++
 mkdir openvpn &&
 cd openvpn &&
@@ -203,23 +212,6 @@ The script will ask you a few questions, choose the following:
 * Client: vpnconfig
 
 
-### Filezilla Client
-
-Download Filezilla
-```c++
-sudo apt update
-sudo apt install filezilla
-```
-
-and access the cloud VM in order to retrieve the config file with a ".opvn" extension located at the root of the VM.
-
-```c++
-Host: XXX.XXX.XXX.XXX (IP address of your droplet)
-Username: root
-Password: The new password you set with Putty.
-Port: 22
-```
-
 ### Pritunl - The VPn Client
 
 This is what you will use to connect to the VPN.
@@ -229,7 +221,7 @@ https://client.pritunl.com/
 
 * [For MAC](https://github.com/pritunl/pritunl-client-electron/releases/download/1.0.1953.32/Pritunl.pkg.zip)
 * [For Windows](https://github.com/pritunl/pritunl-client-electron/releases/download/1.0.1953.32/Pritunl.exe)  
-
+* [For Android](https://play.google.com/store/apps/details?id=net.openvpn.openvpn)
 For Ubuntun 18.04 :
 ```c++
 sudo tee /etc/apt/sources.list.d/pritunl.list << EOF
@@ -251,6 +243,120 @@ curl https://ifconfig.co
 ```
 
 Finally click in the top right corner of the app (the 3 dash) and select connect. You are now using the VPN !
+
+---
+
+### Miscellaneous commands
+
+##### Check udp ports
+
+```c++
+nmap -sUV -T4 -F --version-intensity 0 scanme.nmap.org
+```
+best should be 123
+https://hackertarget.com/nmap-cheatsheet-a-quick-reference-guide/
+
+---
+
+##### Check, edit OpenVPN config and restart the service
+
+```c++
+cat /etc/openvpn/server.conf
+vi /etc/openvpn/server.conf
+systemctl restart openvpn@server.service
+```
+
+---
+
+##### Download file from remote server
+
+```c++
+scp root@159.89.204.125:client1.ovpn /home/st4ck
+```
+
+---
+
+##### Create a Smart DNS Proxy (Netflix, Twitch etc)
+
+SSH to your Droplet (located in the US)
+
+```c++
+ssh root@68.183.170.102
+```c++
+
+Install docker by either geting the drolet with the image or installing it with wget
+
+https://marketplace.digitalocean.com/apps/docker
+
+```c++
+wget -qO- https://get.docker.com/ | sh && chmod 777 sh && ./sh
+
+```
+
+and then run the following script:
+
+```c++
+cd /opt && git clone https://github.com/ab77/netflix-proxy.git && cd netflix-proxy && ./build.sh
+```
+
+
+If you want to share your system with friends and family, you can authorise their home IP address(s) using the netflix-proxy admin site, located at http://<ipaddr>:8080/, where ipaddr is the public IP address of your VPS. Login using admin account with the password you recorded during the build. If you've forgotten your admin credentials  
+https://github.com/ab77/netflix-proxy/blob/master/README.md
+
+Point your DNS at the Droplet IP and watch Netflix out of region.
+
+Install the resolvconf package.
+```c++
+sudo apt install resolvconf
+```
+
+Edit /etc/resolvconf/resolv.conf.d/head and add the following:
+```c++
+# Make edits to /etc/resolvconf/resolv.conf.d/head.
+nameserver 8.8.4.4
+nameserver 8.8.8.8
+```
+
+--dn "CN=134.209.60.144" --san "134.209.60.144"
+
+. . .
+conn ikev2-vpn
+    . . .
+    left=%any
+    leftid=@134.209.60.144
+    leftcert=server-cert.pem
+    leftsendcert=always
+    leftsubnet=0.0.0.0/0
+
+
+Restart the resolvconf service.
+```c++
+sudo service resolvconf restart
+```
+
+Check DNS Settings in Debian & Ubuntu
+```c++
+systemd-resolve --status
+```
+
+---
+
+##### Install Filezilla Client (if not confortable with ssh access)
+
+Download Filezilla
+```c++
+sudo apt update
+sudo apt install filezilla
+```
+
+and access the cloud VM in order to retrieve the config file with a ".opvn" extension located at the root of the VM.
+
+```c++
+Host: XXX.XXX.XXX.XXX (IP address of your droplet)
+Username: root
+Password: The new password you set with Putty.
+Port: 22
+```
 
 ### Get Netflix to work
 ```c++
